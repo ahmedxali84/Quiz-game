@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quiz Game</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <a href="https://github.com/ahmedxali84"><img src="github.png" style="background-color: white; height:50px; border-radius: 100%; margin-top: 5px; margin-left: 10px;"></a>
+  </div>
+
+  <div id="home" class="quiz-container">
+    &nbsp; <h1>"Welcome to the Quiz! Ready to test your knowledge? Choose a topic and let's get started!"</h1>
+    <div class="card" id="htmlCard" data-topic="HTML"><img src="html.jpg" height="200px"></div>
+    <div class="card" id="cssCard" data-topic="CSS"><img src="css-3.png" height="200px"></div>
+    <div class="card" id="jsCard" data-topic="JavaScript"><img src="javascript.jpg" height="200px"></div>
+  </div>
+
+  <br>
+  <div id="quiz" class="quiz-container hidden">
+    <h2 id="quizTopic"></h2>
+    <div id="questionContainer"></div>
+    <div class="timer" id="timerDisplay"></div>
+  </div>
+
+  <div id="result" class="result-container hidden">
+    <h2>Quiz Finished!</h2>
+    <p id="scoreDisplay"></p>
+    <button id="retryButton" class="retry-button">Retry</button>
+  </div>
+
+  <script>
+    var questions = {
+      HTML: [
+        { question: "What does HTML stand for?", options: ["HyperText Markup Language", "HighText Machine Language", "None"], answer: 0 },
+        { question: "Choose the correct HTML element for the largest heading.", options: ["h1", "head", "h6"], answer: 0 },
+        { question: "What does the <head> element do?", options: ["Contains the body content", "Contains meta-information about the document", "Contains the visible content"], answer: 1 },
+        { question: "What does the <a> tag do?", options: ["Defines a hyperlink", "Defines an image", "Defines a paragraph"], answer: 0 },
+        { question: "Which is the correct HTML element to specify a footer?", options: ["<footer>", "<bottom>", "<end>"], answer: 0 },
+        { question: "Which HTML attribute is used to define inline styles?", options: ["class", "style", "id"], answer: 1 },
+        { question: "How can you make a list that lists items with bullets?", options: ["<ol>", "<ul>", "<dl>"], answer: 1 },
+        { question: "Which tag is used to define an image?", options: ["<img>", "<image>", "<src>"], answer: 0 },
+        { question: "Which of the following is a block-level element?", options: ["<span>", "<p>", "<a>"], answer: 1 },
+        { question: "Which HTML tag is used to create a table?", options: ["<table>", "<tr>", "<td>"], answer: 0 }
+      ],
+      CSS: [
+        { question: "What does CSS stand for?", options: ["Cascading Style Sheets", "Creative Style Sheets", "Computer Style Sheets"], answer: 0 },
+        { question: "Which property is used to change background color?", options: ["color", "background-color", "bgcolor"], answer: 1 },
+        { question: "Which property is used to change the font size?", options: ["font-size", "text-size", "font-style"], answer: 0 },
+        { question: "Which property is used to set the spacing between letters?", options: ["letter-spacing", "word-spacing", "line-height"], answer: 0 },
+        { question: "Which property is used to set the margin space?", options: ["spacing", "margin", "padding"], answer: 1 },
+        { question: "Which of the following is used to create a shadow effect in CSS?", options: ["box-shadow", "shadow", "text-shadow"], answer: 0 },
+        { question: "Which of the following CSS selectors selects all <p> elements?", options: ["p", "paragraph", ".p"], answer: 0 },
+        { question: "Which property is used to align text?", options: ["text-align", "align-text", "text-position"], answer: 0 },
+        { question: "Which CSS property is used to change the text color?", options: ["color", "text-color", "font-color"], answer: 0 },
+        { question: "Which property is used to change the display style of an element?", options: ["display", "style", "visibility"], answer: 0 }
+      ],
+      JavaScript: [
+        { question: "Inside which HTML element do we put JavaScript?", options: ["js", "javascript", "script"], answer: 2 },
+        { question: "Which is correct to declare a variable?", options: ["var", "const", "let"], answer: 1 },
+        { question: "Which method is used to add an element to the end of an array?", options: ["push()", "pop()", "shift()"], answer: 0 },
+        { question: "Which function is used to display an alert box?", options: ["alert()", "confirm()", "log()"], answer: 0 },
+        { question: "Which operator is used to assign a value to a variable?", options: ["=", "==", "==="], answer: 0 },
+        { question: "How do you create a function in JavaScript?", options: ["function myFunction()", "function = myFunction()", "create function myFunction()"], answer: 0 },
+        { question: "Which of the following is used to write to the console?", options: ["log()", "console.log()", "write()"], answer: 1 },
+        { question: "How can you create a comment in JavaScript?", options: ["<!-- This is a comment -->", "// This is a comment", "# This is a comment"], answer: 1 },
+        { question: "Which event occurs when the user clicks on an HTML element?", options: ["onchange", "onclick", "onmouseover"], answer: 1 },
+        { question: "How can you declare an array in JavaScript?", options: ["[]", "()", "array{}"], answer: 0 }
+      ]
+    };
+
+    var currentTopic;
+    var currentQuestion = 0;
+    var score = 0;
+    var timer;
+    var timeLeft;
+
+    document.getElementById("htmlCard").onclick = function() { startQuiz("HTML"); };
+    document.getElementById("cssCard").onclick = function() { startQuiz("CSS"); };
+    document.getElementById("jsCard").onclick = function() { startQuiz("JavaScript"); };
+
+    function startQuiz(topic) {
+      currentTopic = topic;
+      currentQuestion = 0;
+      score = 0;
+      document.getElementById("quizTopic").textContent = topic + " Quiz";
+      document.getElementById("home").classList.add("hidden");
+      document.getElementById("quiz").classList.remove("hidden");
+      loadQuestion();
+    }
+
+    function loadQuestion() {
+      var question = questions[currentTopic][currentQuestion];
+      var questionContainer = document.getElementById("questionContainer");
+
+      // Clear previous content
+      questionContainer.innerHTML = '';
+
+      // Add new content
+      questionContainer.innerHTML = `
+        <p>${question.question}</p>
+        ${question.options
+          .map(function(option, index) {
+            return `<button class="option" onclick="checkAnswer(${index})">${option}</button>`;
+          })
+          .join("")}
+      `;
+      
+      // Wait a moment before starting the timer to ensure the question is rendered first
+      setTimeout(startTimer, 100); // Adding a small delay to ensure proper rendering before starting the timer
+    }
+
+    function checkAnswer(selectedIndex) {
+      var question = questions[currentTopic][currentQuestion];
+      var options = document.querySelectorAll(".option");
+
+      if (selectedIndex === question.answer) {
+        options[selectedIndex].style.backgroundColor = "green";
+        score++;
+      } else {
+        options[selectedIndex].style.backgroundColor = "red";
+      }
+
+      setTimeout(nextQuestion, 1000);
+    }
+
+    function nextQuestion() {
+      clearInterval(timer);
+      currentQuestion++;
+      if (currentQuestion < questions[currentTopic].length) {
+        loadQuestion();
+      } else {
+        showResult();
+      }
+    }
+
+    function startTimer() {
+      timeLeft = 30;
+      document.getElementById("timerDisplay").textContent = "Time: " + timeLeft + "s";
+      timer = setInterval(function() {
+        timeLeft--;
+        document.getElementById("timerDisplay").textContent = "Time: " + timeLeft + "s";
+        if (timeLeft === 0) {
+          nextQuestion();
+        }
+      }, 1000);
+    }
+
+    function showResult() {
+      document.getElementById("quiz").classList.add("hidden");
+      document.getElementById("result").classList.remove("hidden");
+      document.getElementById("scoreDisplay").textContent = "Your Score: " + score + " / " + questions[currentTopic].length;
+    }
+
+    document.getElementById("retryButton").onclick = function() {
+      document.getElementById("home").classList.remove("hidden");
+      document.getElementById("result").classList.add("hidden");
+    };
+  </script>
+</body>
+</html>
