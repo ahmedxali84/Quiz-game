@@ -10,7 +10,9 @@
   <div class="container">
     <a href="https://github.com/ahmedxali84"><img src="github.png" style="background-color: white; height:50px; border-radius: 100%; margin-top: 5px; margin-left: 10px;"></a>
   </div>
-
+<div class="logout">
+  <button onclick="logout()" class="signout">Logout</button>
+</div>
   <div id="home" class="quiz-container">
     &nbsp; <h1>"Welcome to the Quiz! Ready to test your knowledge? Choose a topic and let's get started!"</h1>
     <div class="card" id="htmlCard" data-topic="HTML"><img src="html.jpg" height="200px"></div>
@@ -94,11 +96,7 @@
     function loadQuestion() {
       var question = questions[currentTopic][currentQuestion];
       var questionContainer = document.getElementById("questionContainer");
-
-      // Clear previous content
       questionContainer.innerHTML = '';
-
-      // Add new content
       questionContainer.innerHTML = `
         <p>${question.question}</p>
         ${question.options
@@ -107,9 +105,7 @@
           })
           .join("")}
       `;
-      
-      // Wait a moment before starting the timer to ensure the question is rendered first
-      setTimeout(startTimer, 100); // Adding a small delay to ensure proper rendering before starting the timer
+      setTimeout(startTimer, 100); 
     }
 
     function checkAnswer(selectedIndex) {
@@ -158,6 +154,29 @@
       document.getElementById("home").classList.remove("hidden");
       document.getElementById("result").classList.add("hidden");
     };
+    function logout() {
+  Swal.fire({
+    title: "Are you sure?",
+    text: "Do you really want to log out?",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#3085d6",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "Yes, log me out",
+    cancelButtonText: "No, stay here",
+  }).then((result) => {
+    if (result.isConfirmed) {
+      Swal.fire(
+        "Logged Out!",
+        "You have successfully logged out.",
+        "success"
+      ).then(() => {
+        window.location.href = "../index.html";
+      });
+    }
+  });
+}
   </script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </body>
 </html>
