@@ -226,3 +226,19 @@ h1 {
     padding: 20px 40px;
   }
 }
+.signout{
+  padding: 10px;
+  border-radius: 8px;
+  border: 2px solid red;
+  background-color: black;
+  color: red;
+  margin-left: 95%;
+  position: relative;
+  bottom: 50px;
+  cursor: pointer;
+}
+.signout:hover{
+  border: 4px solid green;
+  color: green;
+  transform: scale(1.05);
+}
